@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { InvestigationCaseSummary } from '../types';
-import { Search, ChevronRight, AlertTriangle, CheckCircle2, FileQuestion, ArrowRight } from 'lucide-react';
+import { Search, ChevronRight, AlertTriangle, CheckCircle2, FileQuestion } from 'lucide-react';
 
 interface CaseQueueProps {
   cases: InvestigationCaseSummary[];

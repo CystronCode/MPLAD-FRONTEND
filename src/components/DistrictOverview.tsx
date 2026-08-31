@@ -1,6 +1,6 @@
 import React from 'react';
 import { DistrictAnalytics } from '../types';
-import { IndianRupee, AlertTriangle, CheckCircle2, Search, ArrowUpRight, ShieldCheck, MapPin, Building2 } from 'lucide-react';
+import { IndianRupee, AlertTriangle, CheckCircle2, Search, ArrowUpRight, ShieldCheck, MapPin } from 'lucide-react';
 
 interface DistrictOverviewProps {
   analytics: DistrictAnalytics | null;

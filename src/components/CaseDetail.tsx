@@ -8,12 +8,8 @@ import {
   AlertTriangle,
   Building2,
   ShieldCheck,
-  Calendar,
-  IndianRupee,
   Send,
-  XCircle,
-  CheckCircle,
-  FileBadge
+  CheckCircle
 } from 'lucide-react';
 
 interface CaseDetailProps {
@@ -219,7 +215,7 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({ caseDetail, onBack, onRe
             </div>
 
             <div className="flex-1 bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800">
-              <EvidenceGraph caseId={caseDetail.case_id} />
+              <EvidenceGraph data={caseDetail.evidence_graph} />
             </div>
           </div>
         </div>
