@@ -1,11 +1,15 @@
 import React from 'react';
-import { BarChart3, ListFilter, HelpCircle, Layers, BookOpen, RotateCcw } from 'lucide-react';
+import { BarChart3, ListFilter, HelpCircle, Layers, BookOpen, RotateCcw, MapPin, ChevronDown } from 'lucide-react';
+import { ConstituencySummary } from '../types';
 
 interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   tier3Count: number;
   ambiguityCount: number;
+  constituencies?: ConstituencySummary[];
+  selectedConstituency?: string;
+  onSelectConstituency?: (code: string) => void;
   onStreamClaim?: () => void;
   isStreaming?: boolean;
   onOpenGuide?: () => void;
@@ -17,6 +21,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab,
   tier3Count,
   ambiguityCount,
+  constituencies = [],
+  selectedConstituency = 'KA-24',
+  onSelectConstituency,
   onStreamClaim,
   isStreaming,
   onOpenGuide,
@@ -35,8 +42,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-blue-400 to-teal-300 bg-clip-text text-transparent">
                 MEEV
               </span>
-              <span className="text-xs ml-2 text-slate-400 font-medium hidden sm:inline">
-                MPLADS Decision Support
+              <span className="text-xs ml-2 text-slate-400 font-medium hidden md:inline">
+                MPLADS Decision Core
               </span>
             </div>
           </div>
@@ -90,16 +97,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </nav>
 
-          {/* Streamlined Right Controls */}
+          {/* Right Controls: Interactive 28-Constituency Dropdown & Stream */}
           <div className="flex items-center space-x-2">
             {onOpenGuide && (
               <button
                 onClick={onOpenGuide}
-                className="flex items-center px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-sm transition-all border border-indigo-400/40"
+                className="flex items-center px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-sm transition-all border border-indigo-400/40"
                 title="View stakeholder guide & plain-English explanations"
               >
-                <BookOpen className="w-3.5 h-3.5 mr-1.5 text-indigo-200" />
-                <span>📘 Explainer Guide</span>
+                <BookOpen className="w-3.5 h-3.5 mr-1 text-indigo-200" />
+                <span className="hidden sm:inline">📘 Explainer</span>
               </button>
             )}
 
@@ -107,27 +114,59 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onStreamClaim}
                 disabled={isStreaming}
-                className="flex items-center px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition-all border border-emerald-400/40 disabled:opacity-50"
-                title="Trigger a real-time Bengaluru North e-SAKSHI claim webhook"
+                className="flex items-center px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition-all border border-emerald-400/40 disabled:opacity-50"
+                title={`Trigger a real-time e-SAKSHI claim webhook for ${selectedConstituency}`}
               >
-                <span className={`w-2 h-2 mr-1.5 rounded-full bg-white ${isStreaming ? 'animate-ping' : 'animate-pulse'}`}></span>
-                {isStreaming ? 'Ingesting...' : '⚡ Stream Claim'}
+                <span className={`w-2 h-2 mr-1 rounded-full bg-white ${isStreaming ? 'animate-ping' : 'animate-pulse'}`}></span>
+                <span>{isStreaming ? 'Ingesting...' : '⚡ Stream Claim'}</span>
               </button>
             )}
 
-            <div className="hidden lg:flex items-center space-x-2 text-xs text-slate-300 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700 font-medium">
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>Bengaluru North (KA)</span>
-              {onResetData && (
-                <button
-                  onClick={onResetData}
-                  className="text-slate-400 hover:text-white p-0.5 transition-colors ml-1"
-                  title="Purge test records and reset to clean Bengaluru North baseline"
+            {/* Interactive 28 Karnataka Constituencies Selector */}
+            {onSelectConstituency && (
+              <div className="relative flex items-center bg-slate-800 border border-slate-700 rounded-xl px-2 py-1">
+                <MapPin className="w-3.5 h-3.5 text-emerald-400 mr-1 flex-shrink-0" />
+                <select
+                  value={selectedConstituency}
+                  onChange={(e) => onSelectConstituency(e.target.value)}
+                  className="bg-transparent text-xs text-slate-200 font-semibold focus:outline-none cursor-pointer pr-4 appearance-none"
+                  title="Switch between Karnataka Parliamentary Constituencies"
                 >
-                  <RotateCcw className="w-3 h-3" />
-                </button>
-              )}
-            </div>
+                  <option value="ALL" className="bg-slate-900 text-white">
+                    🏛️ Karnataka State (All 28 Seats)
+                  </option>
+                  <optgroup label="28 Karnataka MP Constituencies" className="bg-slate-900 text-white">
+                    {constituencies.length > 0 ? (
+                      constituencies.map((c) => (
+                        <option key={c.code} value={c.code} className="bg-slate-900 text-white">
+                          {c.name} ({c.code})
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="KA-24" className="bg-slate-900 text-white">Bangalore North (KA-24)</option>
+                        <option value="KA-26" className="bg-slate-900 text-white">Bangalore South (KA-26)</option>
+                        <option value="KA-25" className="bg-slate-900 text-white">Bangalore Central (KA-25)</option>
+                        <option value="KA-21" className="bg-slate-900 text-white">Mysore (KA-21)</option>
+                        <option value="KA-17" className="bg-slate-900 text-white">Dakshina Kannada (KA-17)</option>
+                        <option value="KA-02" className="bg-slate-900 text-white">Belgaum (KA-02)</option>
+                      </>
+                    )}
+                  </optgroup>
+                </select>
+                <ChevronDown className="w-3 h-3 text-slate-400 pointer-events-none absolute right-1.5" />
+                
+                {onResetData && (
+                  <button
+                    onClick={onResetData}
+                    className="text-slate-400 hover:text-white p-0.5 ml-1 transition-colors"
+                    title="Purge and re-seed clean Karnataka State baseline"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

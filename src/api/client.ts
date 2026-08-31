@@ -5,20 +5,41 @@ import {
   InvestigationCaseDetail,
   D3GraphPayload,
   DistrictAnalytics,
+  ConstituencySummary,
   AmbiguityItem
 } from '../types';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
 
 export const apiClient = {
-  getCases: async (tier?: number, minIpi?: number, status?: string): Promise<InvestigationCaseSummary[]> => {
+  getConstituencies: async (): Promise<ConstituencySummary[]> => {
+    try {
+      const res = await axios.get(`${API_BASE}/analytics/constituencies`);
+      return res.data;
+    } catch (e) {
+      console.warn('Failed to fetch constituencies list', e);
+      return [];
+    }
+  },
+
+  getCases: async (
+    tier?: number,
+    minIpi?: number,
+    status?: string,
+    constituencyCode?: string
+  ): Promise<InvestigationCaseSummary[]> => {
     try {
       const res = await axios.get(`${API_BASE}/cases`, {
-        params: { tier, min_ipi: minIpi, status }
+        params: {
+          tier,
+          min_ipi: minIpi,
+          status,
+          constituency_code: constituencyCode && constituencyCode !== 'ALL' ? constituencyCode : undefined
+        }
       });
       return res.data;
     } catch (e) {
-      console.warn('Backend unavailable, using fallback mock data', e);
+      console.warn('Backend unavailable, using fallback empty list', e);
       return [];
     }
   },
@@ -43,9 +64,13 @@ export const apiClient = {
     }
   },
 
-  getDistrictAnalytics: async (): Promise<DistrictAnalytics | null> => {
+  getDistrictAnalytics: async (constituencyCode?: string): Promise<DistrictAnalytics | null> => {
     try {
-      const res = await axios.get(`${API_BASE}/analytics/district`);
+      const res = await axios.get(`${API_BASE}/analytics/district`, {
+        params: {
+          constituency_code: constituencyCode && constituencyCode !== 'ALL' ? constituencyCode : undefined
+        }
+      });
       return res.data;
     } catch (e) {
       console.error('Failed to fetch district analytics', e);
@@ -104,61 +129,23 @@ export const apiClient = {
     }
   },
 
-  triggerStreamClaim: async (claimData?: any): Promise<any> => {
+  triggerStreamClaim: async (constituencyCode?: string, claimData?: any): Promise<any> => {
     try {
-      const blrStreams = [
-        {
-          work_id: `PRJ-BN-LIVE-${Math.floor(1000 + Math.random() * 9000)}`,
-          mp_id: 'MP-LS-KA-24',
-          district_lgd_code: 556,
-          work_description: 'Construction of 2 Additional Class rooms at GHS Yelahanka Old Town',
-          sanction_cost: 1450000.0,
-          recommendation_date: '2023-03-15',
-          sanction_date: '2023-04-10',
-          completion_date: '2023-05-02',
-          latitude: 13.1008,
-          longitude: 77.5964
-        },
-        {
-          work_id: `PRJ-BN-LIVE-${Math.floor(1000 + Math.random() * 9000)}`,
-          mp_id: 'MP-LS-KA-24',
-          district_lgd_code: 556,
-          work_description: 'Setup of Smart Computer Lab at St Anthony English Medium School RT Nagar',
-          sanction_cost: 1150000.0,
-          recommendation_date: '2023-01-20',
-          sanction_date: '2023-04-18',
-          completion_date: '2023-10-10',
-          latitude: 13.0233,
-          longitude: 77.5935
-        },
-        {
-          work_id: `PRJ-BN-LIVE-${Math.floor(1000 + Math.random() * 9000)}`,
-          mp_id: 'MP-LS-KA-24',
-          district_lgd_code: 556,
-          work_description: 'Construction of 2 Additional Classrooms at GHS Vidyaranyapura',
-          sanction_cost: 1420000.0,
-          recommendation_date: '2023-03-01',
-          sanction_date: '2023-03-25',
-          completion_date: '2023-04-13',
-          latitude: 13.0826,
-          longitude: 77.5613
-        },
-        {
-          work_id: `PRJ-BN-LIVE-${Math.floor(1000 + Math.random() * 9000)}`,
-          mp_id: 'MP-LS-KA-24',
-          district_lgd_code: 556,
-          work_description: 'Construction of 2 Additional Classrooms at Govt PU College & High School Hebbal',
-          sanction_cost: 1500000.0,
-          recommendation_date: '2023-01-10',
-          sanction_date: '2023-02-15',
-          completion_date: '2023-08-20',
-          latitude: 13.0359,
-          longitude: 77.5971
-        }
-      ];
-
-      const chosen = blrStreams[Math.floor(Math.random() * blrStreams.length)];
-      const payload = claimData || chosen;
+      const cCode = (constituencyCode && constituencyCode !== 'ALL') ? constituencyCode : 'KA-24';
+      
+      const payload = claimData || {
+        work_id: `PRJ-${cCode}-LIVE-STREAM`,
+        mp_id: `MP-LS-${cCode}`,
+        district_lgd_code: 556,
+        work_description: `Construction of 2 Additional Class rooms in ${cCode} Parliamentary Constituency`,
+        sanction_cost: 1450000.0,
+        recommendation_date: '2023-03-15',
+        sanction_date: '2023-04-10',
+        completion_date: '2023-05-02',
+        latitude: 13.1008,
+        longitude: 77.5964
+      };
+      
       const res = await axios.post(`${API_BASE}/ingest/stream`, payload);
       return res.data;
     } catch (e) {

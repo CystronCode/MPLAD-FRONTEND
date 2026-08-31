@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
 import { DistrictOverview } from './components/DistrictOverview';
 import { CaseQueue } from './components/CaseQueue';
@@ -6,10 +6,18 @@ import { CaseDetail } from './components/CaseDetail';
 import { AmbiguityQueue } from './components/AmbiguityQueue';
 import { StakeholderGuideModal } from './components/StakeholderGuideModal';
 import { apiClient } from './api/client';
-import { InvestigationCaseSummary, InvestigationCaseDetail, DistrictAnalytics, AmbiguityItem } from './types';
+import {
+  InvestigationCaseSummary,
+  InvestigationCaseDetail,
+  DistrictAnalytics,
+  ConstituencySummary,
+  AmbiguityItem
+} from './types';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'queue' | 'detail' | 'ambiguity'>('overview');
+  const [constituencies, setConstituencies] = useState<ConstituencySummary[]>([]);
+  const [selectedConstituency, setSelectedConstituency] = useState<string>('KA-24'); // Default to Bengaluru North
   const [cases, setCases] = useState<InvestigationCaseSummary[]>([]);
   const [caseDetail, setCaseDetail] = useState<InvestigationCaseDetail | null>(null);
   const [analytics, setAnalytics] = useState<DistrictAnalytics | null>(null);
@@ -19,23 +27,28 @@ export const App: React.FC = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [fetchedCases, fetchedAnalytics, fetchedAmbiguity] = await Promise.all([
-        apiClient.getCases(),
-        apiClient.getDistrictAnalytics(),
+      const [fetchedConstList, fetchedCases, fetchedAnalytics, fetchedAmbiguity] = await Promise.all([
+        apiClient.getConstituencies(),
+        apiClient.getCases(undefined, undefined, undefined, selectedConstituency),
+        apiClient.getDistrictAnalytics(selectedConstituency),
         apiClient.getAmbiguityQueue()
       ]);
       
-      // If deployed backend is fresh/empty, trigger one-time auto seed
-      if (fetchedCases.length === 0) {
+      setConstituencies(fetchedConstList);
+
+      // If backend is fresh/empty, trigger one-time auto seed
+      if (fetchedCases.length === 0 && fetchedConstList.length === 0) {
         await apiClient.seedRealtimeData();
-        const [reCases, reAnalytics, reAmbiguity] = await Promise.all([
-          apiClient.getCases(),
-          apiClient.getDistrictAnalytics(),
+        const [reConst, reCases, reAnalytics, reAmbiguity] = await Promise.all([
+          apiClient.getConstituencies(),
+          apiClient.getCases(undefined, undefined, undefined, selectedConstituency),
+          apiClient.getDistrictAnalytics(selectedConstituency),
           apiClient.getAmbiguityQueue()
         ]);
+        setConstituencies(reConst);
         setCases(reCases);
         setAnalytics(reAnalytics);
         setAmbiguityItems(reAmbiguity);
@@ -49,16 +62,23 @@ export const App: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedConstituency]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
+
+  const handleConstituencyChange = (cCode: string) => {
+    setSelectedConstituency(cCode);
+    if (activeTab === 'detail') {
+      setActiveTab('queue');
+    }
+  };
 
   const handleStreamClaim = async () => {
     setIsStreaming(true);
     try {
-      await apiClient.triggerStreamClaim();
+      await apiClient.triggerStreamClaim(selectedConstituency);
       await fetchData();
     } finally {
       setIsStreaming(false);
@@ -102,6 +122,9 @@ export const App: React.FC = () => {
         }}
         tier3Count={tier3Count}
         ambiguityCount={ambiguityItems.length}
+        constituencies={constituencies}
+        selectedConstituency={selectedConstituency}
+        onSelectConstituency={handleConstituencyChange}
         onStreamClaim={handleStreamClaim}
         isStreaming={isStreaming}
         onOpenGuide={() => setIsGuideOpen(true)}
@@ -112,7 +135,7 @@ export const App: React.FC = () => {
         {loading && !caseDetail && cases.length === 0 ? (
           <div className="flex items-center justify-center h-64 text-slate-500 text-sm">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
-            Loading MEEV Decision Core...
+            Loading Karnataka State MEEV Decision Core...
           </div>
         ) : (
           <>
@@ -128,7 +151,7 @@ export const App: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h1 className="text-xl font-bold text-slate-900">
-                    Prioritized Investigation Case Queue
+                    Prioritized Investigation Works Queue
                   </h1>
                 </div>
                 <CaseQueue
@@ -164,7 +187,7 @@ export const App: React.FC = () => {
       />
 
       <footer className="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
-        Smart India Hackathon 2026 — MEEV (SIH26102) | MoSPI & MoE Inter-System Functional Validator
+        Smart India Hackathon 2026 — MEEV (SIH26102) | Karnataka State 28 Parliamentary Constituencies Validator
       </footer>
     </div>
   );

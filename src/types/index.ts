@@ -135,3 +135,17 @@ export interface DistrictAnalytics {
   average_ipi: number;
   anomaly_breakdown: Record<string, number>;
 }
+
+export interface ConstituencySummary {
+  code: string;
+  name: string;
+  mp_id: string;
+  district_lgd_code: number;
+  headquarters: string;
+  total_projects: number;
+  total_expenditure: number;
+  tier_3_warrants: number;
+  tier_2_reviews: number;
+  average_ipi: number;
+}
+
