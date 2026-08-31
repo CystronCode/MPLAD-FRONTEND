@@ -30,8 +30,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-blue-400 to-teal-300 bg-clip-text text-transparent">
                 MEEV
               </span>
-              <span className="text-xs ml-2 text-slate-400 font-mono">
-                SIH26102 GovTech Decision Core
+              <span className="text-xs ml-2 text-slate-400 font-medium">
+                MPLADS Fund Oversight & Ground Validator
               </span>
             </div>
           </div>
@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <BarChart3 className="w-4 h-4 mr-1.5" />
-              District Overview
+              Constituency Overview
             </button>
 
             <button
@@ -58,10 +58,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <ListFilter className="w-4 h-4 mr-1.5" />
-              Investigation Queue
+              Works Audit Queue
               {tier3Count > 0 && (
-                <span className="ml-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">
-                  {tier3Count}
+                <span className="ml-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold animate-pulse">
+                  {tier3Count} Warrants
                 </span>
               )}
             </button>
@@ -89,16 +89,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onStreamClaim}
                 disabled={isStreaming}
-                className="flex items-center px-2.5 py-1.5 rounded-md bg-emerald-600/90 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-all border border-emerald-400/40 disabled:opacity-50"
+                className="flex items-center px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition-all border border-emerald-400/40 disabled:opacity-50"
                 title="Trigger a real-time e-SAKSHI claim webhook"
               >
                 <span className={`w-2 h-2 mr-1.5 rounded-full bg-white ${isStreaming ? 'animate-ping' : 'animate-pulse'}`}></span>
                 {isStreaming ? 'Ingesting...' : '⚡ Stream Live Claim'}
               </button>
             )}
-            <div className="hidden lg:flex items-center space-x-1.5 text-xs text-slate-400">
+            <div className="hidden lg:flex items-center space-x-1.5 text-xs text-slate-300 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700 font-medium">
               <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>Live Registry</span>
+              <span>Bengaluru North (KA)</span>
             </div>
           </div>
         </div>
