@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, ListFilter, HelpCircle, Layers, BookOpen } from 'lucide-react';
+import { BarChart3, ListFilter, HelpCircle, Layers, BookOpen, RotateCcw } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -9,6 +9,7 @@ interface NavbarProps {
   onStreamClaim?: () => void;
   isStreaming?: boolean;
   onOpenGuide?: () => void;
+  onResetData?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -18,7 +19,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   ambiguityCount,
   onStreamClaim,
   isStreaming,
-  onOpenGuide
+  onOpenGuide,
+  onResetData
 }) => {
   return (
     <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50">
@@ -86,15 +88,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </nav>
 
-          <div className="flex items-center space-x-2.5">
+          <div className="flex items-center space-x-2">
             {onOpenGuide && (
               <button
                 onClick={onOpenGuide}
                 className="flex items-center px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-sm transition-all border border-indigo-400/40"
                 title="View stakeholder guide & plain-English algorithm explanation"
               >
-                <BookOpen className="w-3.5 h-3.5 mr-1.5 text-indigo-200" />
-                <span>📘 Explainer Guide</span>
+                <BookOpen className="w-3.5 h-3.5 mr-1 text-indigo-200" />
+                <span>📘 Explainer</span>
               </button>
             )}
 
@@ -103,10 +105,21 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={onStreamClaim}
                 disabled={isStreaming}
                 className="flex items-center px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition-all border border-emerald-400/40 disabled:opacity-50"
-                title="Trigger a real-time e-SAKSHI claim webhook"
+                title="Trigger a real-time Bengaluru North e-SAKSHI claim webhook"
               >
-                <span className={`w-2 h-2 mr-1.5 rounded-full bg-white ${isStreaming ? 'animate-ping' : 'animate-pulse'}`}></span>
+                <span className={`w-2 h-2 mr-1 rounded-full bg-white ${isStreaming ? 'animate-ping' : 'animate-pulse'}`}></span>
                 {isStreaming ? 'Ingesting...' : '⚡ Stream Live Claim'}
+              </button>
+            )}
+
+            {onResetData && (
+              <button
+                onClick={onResetData}
+                className="flex items-center px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-colors"
+                title="Purge database and re-seed pure Bengaluru North records"
+              >
+                <RotateCcw className="w-3.5 h-3.5 mr-1 text-slate-400" />
+                <span>Reset BLR</span>
               </button>
             )}
 

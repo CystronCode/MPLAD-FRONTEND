@@ -96,7 +96,7 @@ export const apiClient = {
 
   seedRealtimeData: async (): Promise<boolean> => {
     try {
-      await axios.post(`${API_BASE}/ingest/seed-realtime`);
+      await axios.post(`${API_BASE}/ingest/seed-realtime?clear_first=true`);
       return true;
     } catch (e) {
       console.error('Failed to seed real-time data', e);
@@ -106,18 +106,59 @@ export const apiClient = {
 
   triggerStreamClaim: async (claimData?: any): Promise<any> => {
     try {
-      const payload = claimData || {
-        work_id: `PRJ-LIVE-${Math.floor(1000 + Math.random() * 9000)}`,
-        mp_id: 'MP-LS-HP-02',
-        district_lgd_code: 12,
-        work_description: 'Construction of 2 Additional Class rooms at GHS Rampur Block-1',
-        sanction_cost: 1240000.0,
-        recommendation_date: '2023-04-01',
-        sanction_date: '2023-04-15',
-        completion_date: '2023-05-08',
-        latitude: 32.1153,
-        longitude: 76.2206
-      };
+      const blrStreams = [
+        {
+          work_id: `PRJ-BN-LIVE-${Math.floor(1000 + Math.random() * 9000)}`,
+          mp_id: 'MP-LS-KA-24',
+          district_lgd_code: 556,
+          work_description: 'Construction of 2 Additional Class rooms at GHS Yelahanka Old Town',
+          sanction_cost: 1450000.0,
+          recommendation_date: '2023-03-15',
+          sanction_date: '2023-04-10',
+          completion_date: '2023-05-02',
+          latitude: 13.1008,
+          longitude: 77.5964
+        },
+        {
+          work_id: `PRJ-BN-LIVE-${Math.floor(1000 + Math.random() * 9000)}`,
+          mp_id: 'MP-LS-KA-24',
+          district_lgd_code: 556,
+          work_description: 'Setup of Smart Computer Lab at St Anthony English Medium School RT Nagar',
+          sanction_cost: 1150000.0,
+          recommendation_date: '2023-01-20',
+          sanction_date: '2023-04-18',
+          completion_date: '2023-10-10',
+          latitude: 13.0233,
+          longitude: 77.5935
+        },
+        {
+          work_id: `PRJ-BN-LIVE-${Math.floor(1000 + Math.random() * 9000)}`,
+          mp_id: 'MP-LS-KA-24',
+          district_lgd_code: 556,
+          work_description: 'Construction of 2 Additional Classrooms at GHS Vidyaranyapura',
+          sanction_cost: 1420000.0,
+          recommendation_date: '2023-03-01',
+          sanction_date: '2023-03-25',
+          completion_date: '2023-04-13',
+          latitude: 13.0826,
+          longitude: 77.5613
+        },
+        {
+          work_id: `PRJ-BN-LIVE-${Math.floor(1000 + Math.random() * 9000)}`,
+          mp_id: 'MP-LS-KA-24',
+          district_lgd_code: 556,
+          work_description: 'Construction of 2 Additional Classrooms at Govt PU College & High School Hebbal',
+          sanction_cost: 1500000.0,
+          recommendation_date: '2023-01-10',
+          sanction_date: '2023-02-15',
+          completion_date: '2023-08-20',
+          latitude: 13.0359,
+          longitude: 77.5971
+        }
+      ];
+
+      const chosen = blrStreams[Math.floor(Math.random() * blrStreams.length)];
+      const payload = claimData || chosen;
       const res = await axios.post(`${API_BASE}/ingest/stream`, payload);
       return res.data;
     } catch (e) {

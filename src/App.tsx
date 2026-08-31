@@ -81,6 +81,16 @@ export const App: React.FC = () => {
     setActiveTab('queue');
   };
 
+  const handleResetData = async () => {
+    setLoading(true);
+    try {
+      await apiClient.seedRealtimeData();
+      await fetchData();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const tier3Count = cases.filter((c) => c.risk_tier === 3).length;
 
   return (
@@ -95,6 +105,7 @@ export const App: React.FC = () => {
         onStreamClaim={handleStreamClaim}
         isStreaming={isStreaming}
         onOpenGuide={() => setIsGuideOpen(true)}
+        onResetData={handleResetData}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
