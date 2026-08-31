@@ -5,6 +5,7 @@ import { CaseQueue } from './components/CaseQueue';
 import { CaseDetail } from './components/CaseDetail';
 import { AmbiguityQueue } from './components/AmbiguityQueue';
 import { StakeholderGuideModal } from './components/StakeholderGuideModal';
+import { CsvIngestModal } from './components/CsvIngestModal';
 import { apiClient } from './api/client';
 import {
   InvestigationCaseSummary,
@@ -26,6 +27,7 @@ export const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -160,6 +162,7 @@ export const App: React.FC = () => {
         onStreamClaim={handleStreamClaim}
         isStreaming={isStreaming}
         onOpenGuide={() => setIsGuideOpen(true)}
+        onOpenCsvModal={() => setIsCsvModalOpen(true)}
         onResetData={handleResetData}
       />
 
@@ -218,6 +221,12 @@ export const App: React.FC = () => {
         onClose={() => setIsGuideOpen(false)}
       />
 
+      <CsvIngestModal
+        isOpen={isCsvModalOpen}
+        onClose={() => setIsCsvModalOpen(false)}
+        onSuccess={fetchData}
+      />
+
       <footer className="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
         Smart India Hackathon 2026 — MEEV (SIH26102) | Karnataka State 28 Parliamentary Constituencies Validator
       </footer>
@@ -226,3 +235,4 @@ export const App: React.FC = () => {
 };
 
 export default App;
+

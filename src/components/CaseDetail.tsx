@@ -53,6 +53,14 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({ caseDetail, onBack, onRe
     return 'Fully Verified Clean Project';
   };
 
+  const getGroundRealityText = (cat: string) => {
+    if (cat.includes('REFLECTION')) return 'UDISE+ annual census (Sep 30 freeze) shows ZERO new classrooms or facilities added on the ground since e-SAKSHI completion claim.';
+    if (cat.includes('VELOCITY')) return 'Construction duration in e-SAKSHI violates IS 456:2000 minimum 28-day concrete curing standard for RCC structural work.';
+    if (cat.includes('STATUTORY')) return 'UDISE+ school master shows PRIVATE UNAIDED management category — ineligible for MPLADS allocation under Guidelines Chapter 6.1.';
+    if (cat.includes('SITING')) return 'UDISE+ enrollment records show declining student strength with existing classroom surplus — capital expenditure not demographically justified.';
+    return 'UDISE+ census confirms new assets reflected in post-completion annual return.';
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Header for District Collectorate */}
@@ -166,13 +174,47 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({ caseDetail, onBack, onRe
                 </div>
                 <div className="flex items-start space-x-2">
                   <span className="font-bold text-slate-900 whitespace-nowrap">🔍 Ground Reality (UDISE+):</span>
-                  <span className="text-slate-700">Official annual school infrastructure census shows no matching physical additions.</span>
+                  <span className="text-slate-700">{getGroundRealityText(caseDetail.primary_category)}</span>
                 </div>
                 <div className="flex items-start space-x-2">
                   <span className="font-bold text-slate-900 whitespace-nowrap">⚠️ Anomaly Category:</span>
                   <span className="font-bold text-red-700">{getPlainEnglishCategory(caseDetail.primary_category)}</span>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Government Source Links */}
+          <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center">
+              <span className="w-4 h-4 mr-1.5 text-blue-600">🔗</span>
+              Official Government Source Records
+            </h2>
+            <div className="space-y-2">
+              <a
+                href={`https://udiseplus.gov.in/#/viewSchool?udisecode=${s.udise_code}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-xs text-blue-700 hover:text-blue-900 hover:underline font-medium"
+              >
+                🏫 UDISE+ School Profile — {s.udise_code}
+              </a>
+              <a
+                href="https://mospi.gov.in/mplads"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-xs text-blue-700 hover:text-blue-900 hover:underline font-medium"
+              >
+                📋 MoSPI MPLADS Public Dashboard
+              </a>
+              <a
+                href="https://mplads.mospi.gov.in/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-xs text-blue-700 hover:text-blue-900 hover:underline font-medium"
+              >
+                ⚡ e-SAKSHI Works Registry (Auth Required)
+              </a>
             </div>
           </div>
 

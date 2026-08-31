@@ -1,5 +1,4 @@
-import React from 'react';
-import { BarChart3, ListFilter, HelpCircle, Layers, BookOpen, RotateCcw, MapPin, ChevronDown } from 'lucide-react';
+import { BarChart3, ListFilter, HelpCircle, Layers, BookOpen, RotateCcw, MapPin, ChevronDown, FileSpreadsheet } from 'lucide-react';
 import { ConstituencySummary } from '../types';
 
 interface NavbarProps {
@@ -13,6 +12,7 @@ interface NavbarProps {
   onStreamClaim?: () => void;
   isStreaming?: boolean;
   onOpenGuide?: () => void;
+  onOpenCsvModal?: () => void;
   onResetData?: () => void;
 }
 
@@ -27,6 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onStreamClaim,
   isStreaming,
   onOpenGuide,
+  onOpenCsvModal,
   onResetData
 }) => {
   return (
@@ -99,6 +100,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right Controls: Interactive 28-Constituency Dropdown & Stream */}
           <div className="flex items-center space-x-2">
+            {onOpenCsvModal && (
+              <button
+                onClick={onOpenCsvModal}
+                className="flex items-center px-2.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-sm transition-all border border-teal-400/40"
+                title="Ingest raw external CSV datasets (karnataka_schools_raw.csv & karnataka_works_raw.csv)"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 mr-1 text-teal-200" />
+                <span className="hidden sm:inline">📂 Ingest CSV</span>
+              </button>
+            )}
+
             {onOpenGuide && (
               <button
                 onClick={onOpenGuide}

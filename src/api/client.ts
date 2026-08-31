@@ -152,5 +152,16 @@ export const apiClient = {
       console.error('Failed to stream claim', e);
       return null;
     }
+  },
+
+  triggerCsvPipeline: async (): Promise<any> => {
+    try {
+      const res = await axios.post(`${API_BASE}/ingest/csv-pipeline`);
+      return res.data;
+    } catch (e) {
+      console.error('Failed to run CSV ingestion pipeline', e);
+      return null;
+    }
   }
 };
+
