@@ -6,13 +6,17 @@ interface NavbarProps {
   setActiveTab: (tab: string) => void;
   tier3Count: number;
   ambiguityCount: number;
+  onStreamClaim?: () => void;
+  isStreaming?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
   tier3Count,
-  ambiguityCount
+  ambiguityCount,
+  onStreamClaim,
+  isStreaming
 }) => {
   return (
     <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50">
@@ -80,9 +84,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </nav>
 
-          <div className="hidden md:flex items-center space-x-2 text-xs text-slate-400">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Kangra District (HP)</span>
+          <div className="flex items-center space-x-3">
+            {onStreamClaim && (
+              <button
+                onClick={onStreamClaim}
+                disabled={isStreaming}
+                className="flex items-center px-2.5 py-1.5 rounded-md bg-emerald-600/90 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-all border border-emerald-400/40 disabled:opacity-50"
+                title="Trigger a real-time e-SAKSHI claim webhook"
+              >
+                <span className={`w-2 h-2 mr-1.5 rounded-full bg-white ${isStreaming ? 'animate-ping' : 'animate-pulse'}`}></span>
+                {isStreaming ? 'Ingesting...' : '⚡ Stream Live Claim'}
+              </button>
+            )}
+            <div className="hidden lg:flex items-center space-x-1.5 text-xs text-slate-400">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Live Registry</span>
+            </div>
           </div>
         </div>
       </div>

@@ -15,6 +15,7 @@ export const App: React.FC = () => {
   const [ambiguityItems, setAmbiguityItems] = useState<AmbiguityItem[]>([]);
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isStreaming, setIsStreaming] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -24,9 +25,23 @@ export const App: React.FC = () => {
         apiClient.getDistrictAnalytics(),
         apiClient.getAmbiguityQueue()
       ]);
-      setCases(fetchedCases);
-      setAnalytics(fetchedAnalytics);
-      setAmbiguityItems(fetchedAmbiguity);
+      
+      // If deployed backend is fresh/empty, trigger one-time auto seed
+      if (fetchedCases.length === 0) {
+        await apiClient.seedRealtimeData();
+        const [reCases, reAnalytics, reAmbiguity] = await Promise.all([
+          apiClient.getCases(),
+          apiClient.getDistrictAnalytics(),
+          apiClient.getAmbiguityQueue()
+        ]);
+        setCases(reCases);
+        setAnalytics(reAnalytics);
+        setAmbiguityItems(reAmbiguity);
+      } else {
+        setCases(fetchedCases);
+        setAnalytics(fetchedAnalytics);
+        setAmbiguityItems(fetchedAmbiguity);
+      }
     } catch (e) {
       console.error('Error fetching dashboard data', e);
     } finally {
@@ -37,6 +52,16 @@ export const App: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleStreamClaim = async () => {
+    setIsStreaming(true);
+    try {
+      await apiClient.triggerStreamClaim();
+      await fetchData();
+    } finally {
+      setIsStreaming(false);
+    }
+  };
 
   const handleSelectCase = async (caseId: string) => {
     setLoading(true);
@@ -65,6 +90,8 @@ export const App: React.FC = () => {
         }}
         tier3Count={tier3Count}
         ambiguityCount={ambiguityItems.length}
+        onStreamClaim={handleStreamClaim}
+        isStreaming={isStreaming}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">

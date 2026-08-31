@@ -92,5 +92,37 @@ export const apiClient = {
 
   getNoticeDownloadUrl: (caseId: string): string => {
     return `${API_BASE}/cases/${caseId}/notice/pdf`;
+  },
+
+  seedRealtimeData: async (): Promise<boolean> => {
+    try {
+      await axios.post(`${API_BASE}/ingest/seed-realtime`);
+      return true;
+    } catch (e) {
+      console.error('Failed to seed real-time data', e);
+      return false;
+    }
+  },
+
+  triggerStreamClaim: async (claimData?: any): Promise<any> => {
+    try {
+      const payload = claimData || {
+        work_id: `PRJ-LIVE-${Math.floor(1000 + Math.random() * 9000)}`,
+        mp_id: 'MP-LS-HP-02',
+        district_lgd_code: 12,
+        work_description: 'Construction of 2 Additional Class rooms at GHS Rampur Block-1',
+        sanction_cost: 1240000.0,
+        recommendation_date: '2023-04-01',
+        sanction_date: '2023-04-15',
+        completion_date: '2023-05-08',
+        latitude: 32.1153,
+        longitude: 76.2206
+      };
+      const res = await axios.post(`${API_BASE}/ingest/stream`, payload);
+      return res.data;
+    } catch (e) {
+      console.error('Failed to stream claim', e);
+      return null;
+    }
   }
 };
