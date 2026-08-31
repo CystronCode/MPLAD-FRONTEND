@@ -4,6 +4,7 @@ import { DistrictOverview } from './components/DistrictOverview';
 import { CaseQueue } from './components/CaseQueue';
 import { CaseDetail } from './components/CaseDetail';
 import { AmbiguityQueue } from './components/AmbiguityQueue';
+import { StakeholderGuideModal } from './components/StakeholderGuideModal';
 import { apiClient } from './api/client';
 import { InvestigationCaseSummary, InvestigationCaseDetail, DistrictAnalytics, AmbiguityItem } from './types';
 
@@ -16,6 +17,7 @@ export const App: React.FC = () => {
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -92,6 +94,7 @@ export const App: React.FC = () => {
         ambiguityCount={ambiguityItems.length}
         onStreamClaim={handleStreamClaim}
         isStreaming={isStreaming}
+        onOpenGuide={() => setIsGuideOpen(true)}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
@@ -106,6 +109,7 @@ export const App: React.FC = () => {
               <DistrictOverview
                 analytics={analytics}
                 onSelectTier={handleSelectTierFromOverview}
+                onOpenGuide={() => setIsGuideOpen(true)}
               />
             )}
 
@@ -142,6 +146,11 @@ export const App: React.FC = () => {
           </>
         )}
       </main>
+
+      <StakeholderGuideModal
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+      />
 
       <footer className="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
         Smart India Hackathon 2026 — MEEV (SIH26102) | MoSPI & MoE Inter-System Functional Validator

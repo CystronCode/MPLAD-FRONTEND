@@ -1,13 +1,14 @@
 import React from 'react';
 import { DistrictAnalytics } from '../types';
-import { IndianRupee, AlertTriangle, CheckCircle2, Search, ArrowUpRight, ShieldCheck, MapPin } from 'lucide-react';
+import { IndianRupee, AlertTriangle, CheckCircle2, Search, ArrowUpRight, ShieldCheck, MapPin, BookOpen } from 'lucide-react';
 
 interface DistrictOverviewProps {
   analytics: DistrictAnalytics | null;
   onSelectTier: (tier: number) => void;
+  onOpenGuide?: () => void;
 }
 
-export const DistrictOverview: React.FC<DistrictOverviewProps> = ({ analytics, onSelectTier }) => {
+export const DistrictOverview: React.FC<DistrictOverviewProps> = ({ analytics, onSelectTier, onOpenGuide }) => {
   const defaultAnalytics: DistrictAnalytics = analytics || {
     district_name: 'Bengaluru North Parliamentary Constituency (Karnataka)',
     total_projects: 8,
@@ -61,6 +62,31 @@ export const DistrictOverview: React.FC<DistrictOverviewProps> = ({ analytics, o
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Executive Briefing Callout in Plain English */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start space-x-3">
+          <div className="p-2 bg-blue-600 text-white rounded-xl flex-shrink-0 mt-0.5">
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-blue-950">
+              Executive Briefing: How MEEV Cross-Checks Bengaluru North School Funds
+            </h3>
+            <p className="text-xs text-blue-800/90 mt-0.5 max-w-2xl leading-relaxed">
+              Every year, MPs sanction ₹5 Crore for local development. MEEV cross-references claimed contractor bills in <strong>e-SAKSHI</strong> against independent ground census audits in <strong>UDISE+</strong> to instantly catch ghost rooms, unrealistic construction speeds, and ineligible private beneficiaries.
+            </p>
+          </div>
+        </div>
+        {onOpenGuide && (
+          <button
+            onClick={onOpenGuide}
+            className="whitespace-nowrap px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition-colors shadow-sm flex items-center justify-center space-x-1.5"
+          >
+            <span>📘 Read Stakeholder Guide</span>
+          </button>
+        )}
       </div>
 
       {/* Actionable Executive KPI Cards */}

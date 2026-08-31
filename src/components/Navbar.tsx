@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, ListFilter, HelpCircle, Layers } from 'lucide-react';
+import { BarChart3, ListFilter, HelpCircle, Layers, BookOpen } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -8,6 +8,7 @@ interface NavbarProps {
   ambiguityCount: number;
   onStreamClaim?: () => void;
   isStreaming?: boolean;
+  onOpenGuide?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -16,7 +17,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   tier3Count,
   ambiguityCount,
   onStreamClaim,
-  isStreaming
+  isStreaming,
+  onOpenGuide
 }) => {
   return (
     <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50">
@@ -36,7 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          <nav className="flex space-x-1 sm:space-x-3">
+          <nav className="flex space-x-1 sm:space-x-2">
             <button
               onClick={() => setActiveTab('overview')}
               className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -84,7 +86,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </nav>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2.5">
+            {onOpenGuide && (
+              <button
+                onClick={onOpenGuide}
+                className="flex items-center px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-sm transition-all border border-indigo-400/40"
+                title="View stakeholder guide & plain-English algorithm explanation"
+              >
+                <BookOpen className="w-3.5 h-3.5 mr-1.5 text-indigo-200" />
+                <span>📘 Explainer Guide</span>
+              </button>
+            )}
+
             {onStreamClaim && (
               <button
                 onClick={onStreamClaim}
@@ -96,7 +109,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {isStreaming ? 'Ingesting...' : '⚡ Stream Live Claim'}
               </button>
             )}
-            <div className="hidden lg:flex items-center space-x-1.5 text-xs text-slate-300 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700 font-medium">
+
+            <div className="hidden xl:flex items-center space-x-1.5 text-xs text-slate-300 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700 font-medium">
               <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span>Bengaluru North (KA)</span>
             </div>
