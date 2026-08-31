@@ -4,7 +4,6 @@ import { EvidenceGraph } from './EvidenceGraph';
 import { apiClient } from '../api/client';
 import {
   FileText,
-  Download,
   AlertTriangle,
   Building2,
   ShieldCheck,
@@ -32,6 +31,11 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({ caseDetail, onBack, onRe
       const res = await apiClient.recordDecision(caseDetail.case_id, decisionType, decisionNotes);
       if (res) {
         setActionSuccess(`Enforcement action recorded: ${decisionType}. Cryptographic audit hash: ${res.audit_hash.slice(0, 16)}...`);
+        if (decisionType === 'ESCALATE_FIELD_INSPECTION') {
+          // Automatically trigger notice download
+          const url = apiClient.getNoticeDownloadUrl(caseDetail.case_id);
+          window.open(url, '_blank');
+        }
         setTimeout(() => {
           onRefresh();
         }, 1500);
@@ -41,9 +45,12 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({ caseDetail, onBack, onRe
     }
   };
 
-  const downloadNotice = () => {
-    const url = apiClient.getNoticeDownloadUrl(caseDetail.case_id);
-    window.open(url, '_blank');
+  const getPlainEnglishCategory = (cat: string) => {
+    if (cat.includes('REFLECTION')) return 'Missing Infrastructure on Ground (0 Delta in Census)';
+    if (cat.includes('VELOCITY')) return 'Unrealistic Construction Speed (< 30d RCC Curing Time)';
+    if (cat.includes('STATUTORY')) return 'Ineligible Private Beneficiary (Guidelines Violation)';
+    if (cat.includes('SITING')) return 'Excess Siting / Low Student Enrollment';
+    return 'Fully Verified Clean Project';
   };
 
   return (
@@ -135,63 +142,77 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({ caseDetail, onBack, onRe
             </div>
           </div>
 
-          {/* Ground Audit Findings */}
+          {/* Ground Audit Findings in Plain English */}
           <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center">
-              <AlertTriangle className="w-4 h-4 mr-1.5 text-amber-600" />
-              Automated Ground Audit Findings
-            </h2>
-            <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 font-medium leading-relaxed">
-              {caseDetail.explanation_narrative}
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center">
+                <AlertTriangle className="w-4 h-4 mr-1.5 text-amber-600" />
+                Plain-English Ground Audit Findings
+              </h2>
+              <span className="text-xs font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+                Collectorate Brief
+              </span>
+            </div>
+
+            <div className="p-4 bg-amber-50/90 rounded-xl border border-amber-200 text-xs text-amber-950 space-y-3">
+              <p className="font-semibold leading-relaxed text-slate-900">
+                {caseDetail.explanation_narrative}
+              </p>
+
+              <div className="pt-2.5 border-t border-amber-200 space-y-1.5 text-xs">
+                <div className="flex items-start space-x-2">
+                  <span className="font-bold text-slate-900 whitespace-nowrap">🎯 Claimed in e-SAKSHI:</span>
+                  <span className="text-slate-700">₹{(p.sanction_cost / 100000).toFixed(2)} Lakhs reported 100% complete on {String(p.completion_date || 'N/A')}.</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="font-bold text-slate-900 whitespace-nowrap">🔍 Ground Reality (UDISE+):</span>
+                  <span className="text-slate-700">Official annual school infrastructure census shows no matching physical additions.</span>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <span className="font-bold text-slate-900 whitespace-nowrap">⚠️ Anomaly Category:</span>
+                  <span className="font-bold text-red-700">{getPlainEnglishCategory(caseDetail.primary_category)}</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Statutory Inspection Warrant Action Box */}
-          <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-2xl p-5 text-white shadow-md border border-slate-700 space-y-4">
+          {/* Streamlined District Magistrate Enforcement Box */}
+          <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-2xl p-5 text-white shadow-md border border-slate-700 space-y-3.5">
             <div>
               <span className="text-xs font-bold text-teal-400 uppercase tracking-wider block">
-                District Magistrate Enforcement Actions
+                District Magistrate Decision
               </span>
-              <h3 className="text-sm font-bold text-white mt-1">
+              <h3 className="text-sm font-bold text-white mt-0.5">
                 Issue Field Warrant or Clearance
               </h3>
             </div>
 
             <textarea
-              placeholder="Enter official collectorate notes / inspection dispatch instructions..."
+              placeholder="Enter optional collectorate notes / inspection dispatch instructions..."
               value={decisionNotes}
               onChange={(e) => setDecisionNotes(e.target.value)}
               rows={2}
               className="w-full text-xs p-3 rounded-xl bg-slate-800/90 text-white placeholder-slate-400 border border-slate-600 focus:outline-none focus:border-teal-400"
             />
 
-            <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
               <button
                 onClick={() => handleDecision('ESCALATE_FIELD_INSPECTION')}
                 disabled={submitting}
-                className="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 font-bold text-xs text-white transition-colors flex items-center justify-center space-x-2 shadow-sm disabled:opacity-50"
+                className="py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 font-bold text-xs text-white transition-colors flex items-center justify-center space-x-1.5 shadow-sm disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />
-                <span>Issue Field Inspection Warrant (Form MPLADS-INSP-1)</span>
+                <span>Issue Warrant (PDF Notice)</span>
               </button>
 
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={downloadNotice}
-                  className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download Notice (PDF)</span>
-                </button>
-                <button
-                  onClick={() => handleDecision('VERIFY_LEGITIMATE')}
-                  disabled={submitting}
-                  className="py-2 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 font-bold text-xs text-white transition-colors flex items-center justify-center space-x-1.5 disabled:opacity-50"
-                >
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  <span>Certify Clean</span>
-                </button>
-              </div>
+              <button
+                onClick={() => handleDecision('VERIFY_LEGITIMATE')}
+                disabled={submitting}
+                className="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white transition-colors flex items-center justify-center space-x-1.5 disabled:opacity-50"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span>Certify Clean</span>
+              </button>
             </div>
           </div>
         </div>
